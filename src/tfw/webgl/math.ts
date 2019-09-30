@@ -1,34 +1,33 @@
-module.exports = {
-    M4: {
-        identity: identity4,
-        matrix: mat4,
-        vector: vec4,
-        projection: projection4,
-        translation: translation4,
-        rotationX: rotationX4,
-        rotationY: rotationY4,
-        rotationZ: rotationZ4,
-        rotationXY: rotationXY4,
-        rotationYX: rotationYX4,
-        rotationXZ: rotationXZ4,
-        rotationZX: rotationZX4,
-        scaling: scaling4,
-        copy: copy,
-        normalize: normalize,
-        cameraPolar: cameraPolar4,
-        perspective: perspective4,
-        mul: mul
-    },
-    M3: {
-        identity: identity3,
-        matrix: mat3,
-        projection: projection3,
-        translation: translation3,
-        rotation: rotation3,
-        scaling: scaling3
-    },
-    computeBinomialCoeffs
-};
+export const M4 = {
+    identity: identity4,
+    matrix: mat4,
+    vector: vec4,
+    projection: projection4,
+    translation: translation4,
+    rotationX: rotationX4,
+    rotationY: rotationY4,
+    rotationZ: rotationZ4,
+    rotationXY: rotationXY4,
+    rotationYX: rotationYX4,
+    rotationXZ: rotationXZ4,
+    rotationZX: rotationZX4,
+    scaling: scaling4,
+    copy: copy,
+    normalize: normalize,
+    cameraPolar: cameraPolar4,
+    perspective: perspective4,
+    mul: mul
+}
+export const M3 = {
+    identity: identity3,
+    matrix: mat3,
+    projection: projection3,
+    translation: translation3,
+    rotation: rotation3,
+    scaling: scaling3
+}
+
+export default { M3, M4, computeBinomialCoeffs }
 
 const
     M4_00 = 0,
@@ -49,111 +48,119 @@ const
     M4_33 = 15;
 
 
-function copy(arr) {
+function copy(arr: Iterable<number>) {
     return new Float32Array(arr);
 }
 
-function normalize(arr) {
-    var n = copy(arr);
-    var len = 0,
-        v, k;
-    for (k = 0; k < n.length; k++) {
-        v = n[k];
+function normalize(arr: Iterable<number>) {
+    const n = copy(arr);
+    let len = 0
+    for (let k = 0; k < n.length; k++) {
+        const v = n[k];
         len += v * v;
     }
     if (len > 0) {
-        var coeff = 1 / Math.sqrt(len);
-        for (k = 0; k < n.length; k++) {
+        const coeff = 1 / Math.sqrt(len);
+        for (let k = 0; k < n.length; k++) {
             n[k] *= coeff;
         }
     }
     return n;
 }
 
-function cameraPolar4(targetX, targetY, targetZ, dis, lat, lng, result) {
-    result = result || new Float32Array(16);
-    var cosLat = Math.cos(lat);
-    var sinLat = Math.sin(lat);
-    var cosLng = -Math.cos(lng + Math.PI * .5);
-    var sinLng = -Math.sin(lng + Math.PI * .5);
+/**
+ * Create the matrix of a camera pointing on (targetX,targetY,targetZ) which is
+ * the center of a sphere of radius `dis`. The camera position is defined by its
+ * latitude and longitude on this sphere.
+ */
+function cameraPolar4(targetX: number, targetY: number, targetZ: number,
+    dis: number, lat: number, lng: number,
+    output: Float32Array | undefined = undefined): Float32Array {
+    const result = output || new Float32Array(16);
+    const cosLat = Math.cos(lat);
+    const sinLat = Math.sin(lat);
+    const cosLng = -Math.cos(lng + Math.PI * .5);
+    const sinLng = -Math.sin(lng + Math.PI * .5);
     // Vecteur Z de la caméra.
-    var Zx = cosLng * cosLat;
-    var Zy = sinLng * cosLat;
-    var Zz = sinLat; // V2/2
+    const Zx = cosLng * cosLat;
+    const Zy = sinLng * cosLat;
+    const Zz = sinLat; // V2/2
     // Le vecteur X se déduit par un produit vectoriel de (0,0,1) avec Z.
-    var Xx = -Zy;
-    var Xy = Zx;
-    var Xz = 0;
+    let Xx = -Zy;
+    let Xy = Zx;
+    let Xz = 0;
     // Comme (0,0,1) n'est pas orthogonal à Z, il faut normaliser X.
-    var len = Math.sqrt(Xx * Xx + Xy * Xy + Xz * Xz);
+    const len = Math.sqrt(Xx * Xx + Xy * Xy + Xz * Xz);
     Xx /= len;
     Xy /= len;
     Xz /= len;
     // Y peut alors se déduire par le produit vectoriel de Z par X.
     // Et il n'y aura pas besoin de le normaliser.
-    var Yx = Zy * Xz - Zz * Xy;
-    var Yy = Xx * Zz - Xz * Zx;
-    var Yz = Zx * Xy - Zy * Xx;
+    const Yx = Zy * Xz - Zz * Xy;
+    const Yy = Xx * Zz - Xz * Zx;
+    const Yz = Zx * Xy - Zy * Xx;
     // Translation.
-    var Tx = -(Zx * dis + targetX);
-    var Ty = -(Zy * dis + targetY);
-    var Tz = -(Zz * dis + targetZ);
+    const Tx = -(Zx * dis + targetX);
+    const Ty = -(Zy * dis + targetY);
+    const Tz = -(Zz * dis + targetZ);
 
     // Le résultat est la multiplication de la projection avec la translation.
     result[M4_00] = Xx;
-    result[4] = Xy;
-    result[8] = Xz;
-    result[12] = Tx * Xx + Ty * Xy + Tz * Xz;
+    result[M4_01] = Xy;
+    result[M4_02] = Xz;
+    result[M4_03] = Tx * Xx + Ty * Xy + Tz * Xz;
 
-    result[1] = Yx;
-    result[5] = Yy;
-    result[9] = Yz;
-    result[13] = Tx * Yx + Ty * Yy + Tz * Yz;
+    result[M4_10] = Yx;
+    result[M4_11] = Yy;
+    result[M4_12] = Yz;
+    result[M4_13] = Tx * Yx + Ty * Yy + Tz * Yz;
 
-    result[2] = Zx;
-    result[6] = Zy;
-    result[10] = Zz;
-    result[14] = Tx * Zx + Ty * Zy + Tz * Zz;
+    result[M4_20] = Zx;
+    result[M4_21] = Zy;
+    result[M4_22] = Zz;
+    result[M4_23] = Tx * Zx + Ty * Zy + Tz * Zz;
 
-    result[3] = 0;
-    result[7] = 0;
-    result[11] = 0;
-    result[15] = 1;
+    result[M4_30] = 0;
+    result[M4_31] = 0;
+    result[M4_32] = 0;
+    result[M4_33] = 1;
 
     return result;
 }
 
 /**
  * Define the `frustum`.
- * @param {number} fieldAngle - View angle in radians. Maximum is PI.
- * @param {number} aspect - (width / height) of the canvas.
- * @param {number} near - Clip every Z lower than `near`.
- * @param {number} far - Clip every Z greater than `far`.
+ * - param fieldAngle: View angle in radians. Maximum is PI.
+ * - param aspect: (width / height) of the canvas.
+ * - param near: Clip every Z lower than `near`.
+ * - param far: Clip every Z greater than `far`.
  */
-function perspective4(fieldAngle, aspect, near, far, result) {
-    result = result || new Float32Array(16);
-    var f = Math.tan(0.5 * (Math.PI - fieldAngle));
-    var rangeInv = 1.0 / (near - far);
+function perspective4(fieldAngle: number, aspect: number,
+                      near: number, far: number,
+                      output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
+    const f = Math.tan(0.5 * (Math.PI - fieldAngle));
+    const rangeInv = 1.0 / (near - far);
 
     result[M4_00] = f / aspect;
-    result[1] = 0;
-    result[2] = 0;
-    result[3] = 0;
+    result[M4_10] = 0;
+    result[M4_20] = 0;
+    result[M4_30] = 0;
 
-    result[4] = 0;
-    result[5] = f;
-    result[6] = 0;
-    result[7] = 0;
+    result[M4_01] = 0;
+    result[M4_11] = f;
+    result[M4_21] = 0;
+    result[M4_31] = 0;
 
-    result[8] = 0;
-    result[9] = 0;
-    result[10] = (near + far) * rangeInv;
-    result[11] = -1;
+    result[M4_02] = 0;
+    result[M4_12] = 0;
+    result[M4_22] = (near + far) * rangeInv;
+    result[M4_32] = -1;
 
-    result[12] = 0;
-    result[13] = 0;
-    result[14] = near * far * rangeInv * 2;
-    result[15] = 0;
+    result[M4_03] = 0;
+    result[M4_13] = 0;
+    result[M4_23] = near * far * rangeInv * 2;
+    result[M4_33] = 0;
 
     return result;
 }
@@ -166,59 +173,59 @@ function identity4() {
     return mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 }
 
-function inverse4(m, dst) {
-    dst = dst || mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    var m00 = m[M4_00];
-    var m01 = m[1];
-    var m02 = m[2];
-    var m03 = m[3];
-    var m10 = m[4];
-    var m12 = m[5];
-    var m11 = m[6];
-    var m13 = m[7];
-    var m20 = m[8];
-    var m21 = m[9];
-    var m22 = m[10];
-    var m23 = m[11];
-    var m30 = m[12];
-    var m31 = m[13];
-    var m32 = m[14];
-    var m33 = m[15];
-    var tmp_0 = m22 * m33;
-    var tmp_1 = m32 * m23;
-    var tmp_2 = m12 * m33;
-    var tmp_3 = m32 * m13;
-    var tmp_4 = m12 * m23;
-    var tmp_5 = m22 * m13;
-    var tmp_6 = m02 * m33;
-    var tmp_7 = m32 * m03;
-    var tmp_8 = m02 * m23;
-    var tmp_9 = m22 * m03;
-    var tmp_10 = m02 * m13;
-    var tmp_11 = m12 * m03;
-    var tmp_12 = m20 * m31;
-    var tmp_13 = m30 * m21;
-    var tmp_14 = m10 * m31;
-    var tmp_15 = m30 * m11;
-    var tmp_16 = m10 * m21;
-    var tmp_17 = m20 * m11;
-    var tmp_18 = m00 * m31;
-    var tmp_19 = m30 * m01;
-    var tmp_20 = m00 * m21;
-    var tmp_21 = m20 * m01;
-    var tmp_22 = m00 * m11;
-    var tmp_23 = m10 * m01;
+function inverse4(m: Float32Array, output: Float32Array | undefined = undefined): Float32Array {
+    const dst = output || mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    const m00 = m[M4_00];
+    const m01 = m[M4_10];
+    const m02 = m[M4_20];
+    const m03 = m[M4_30];
+    const m10 = m[M4_01];
+    const m12 = m[M4_11];
+    const m11 = m[M4_21];
+    const m13 = m[M4_31];
+    const m20 = m[M4_02];
+    const m21 = m[M4_12];
+    const m22 = m[M4_22];
+    const m23 = m[M4_32];
+    const m30 = m[M4_03];
+    const m31 = m[M4_13];
+    const m32 = m[M4_23];
+    const m33 = m[M4_33];
+    const tmp_0 = m22 * m33;
+    const tmp_1 = m32 * m23;
+    const tmp_2 = m12 * m33;
+    const tmp_3 = m32 * m13;
+    const tmp_4 = m12 * m23;
+    const tmp_5 = m22 * m13;
+    const tmp_6 = m02 * m33;
+    const tmp_7 = m32 * m03;
+    const tmp_8 = m02 * m23;
+    const tmp_9 = m22 * m03;
+    const tmp_10 = m02 * m13;
+    const tmp_11 = m12 * m03;
+    const tmp_12 = m20 * m31;
+    const tmp_13 = m30 * m21;
+    const tmp_14 = m10 * m31;
+    const tmp_15 = m30 * m11;
+    const tmp_16 = m10 * m21;
+    const tmp_17 = m20 * m11;
+    const tmp_18 = m00 * m31;
+    const tmp_19 = m30 * m01;
+    const tmp_20 = m00 * m21;
+    const tmp_21 = m20 * m01;
+    const tmp_22 = m00 * m11;
+    const tmp_23 = m10 * m01;
 
-    var t0 = (tmp_0 * m11 + tmp_3 * m21 + tmp_4 * m31) -
+    const t0 = (tmp_0 * m11 + tmp_3 * m21 + tmp_4 * m31) -
         (tmp_1 * m11 + tmp_2 * m21 + tmp_5 * m31);
-    var t1 = (tmp_1 * m01 + tmp_6 * m21 + tmp_9 * m31) -
+    const t1 = (tmp_1 * m01 + tmp_6 * m21 + tmp_9 * m31) -
         (tmp_0 * m01 + tmp_7 * m21 + tmp_8 * m31);
-    var t2 = (tmp_2 * m01 + tmp_7 * m11 + tmp_10 * m31) -
+    const t2 = (tmp_2 * m01 + tmp_7 * m11 + tmp_10 * m31) -
         (tmp_3 * m01 + tmp_6 * m11 + tmp_11 * m31);
-    var t3 = (tmp_5 * m01 + tmp_8 * m11 + tmp_11 * m21) -
+    const t3 = (tmp_5 * m01 + tmp_8 * m11 + tmp_11 * m21) -
         (tmp_4 * m01 + tmp_9 * m11 + tmp_10 * m21);
 
-    var d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
+    const d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
 
     dst[M4_00] = d * t0;
     dst[1] = d * t1;
@@ -252,32 +259,32 @@ function inverse4(m, dst) {
     return dst;
 }
 
-function projection3(width, height) {
+function projection3(width: number, height: number) {
     return mat3(2 / width, 0, 0, 0, -2 / height, 0, 0, 0, 1);
 }
 
-function projection4(width, height, depth) {
+function projection4(width: number, height: number, depth: number) {
     return mat4(2 / width, 0, 0, 0, 0, -2 / height, 0, 0, 0, 0, 2 / depth, 0, 0, 0, 0, 1);
 }
 
-function translation3(tx, ty) {
+function translation3(tx: number, ty: number) {
     return mat3(1, 0, 0, 0, 1, 0, tx, ty, 1);
 }
 
-function translation4(tx, ty, tz) {
+function translation4(tx: number, ty: number, tz: number) {
     return mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, tx, ty, tz, 1);
 }
 
-function rotation3(rad) {
-    var c = Math.cos(rad);
-    var s = Math.sin(rad);
+function rotation3(rad: number) {
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
     return mat3(c, -s, 0, s, c, 0, 0, 0, 1);
 }
 
-function rotationX4(rad, result) {
-    result = result || new Float32Array(16);
-    var c = Math.cos(rad);
-    var s = Math.sin(rad);
+function rotationX4(rad: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
     result[M4_00] = 1;
     result[1] = 0;
     result[2] = 0;
@@ -300,10 +307,10 @@ function rotationX4(rad, result) {
     return result;
 }
 
-function rotationY4(rad, result) {
-    result = result || new Float32Array(16);
-    var c = Math.cos(rad);
-    var s = Math.sin(rad);
+function rotationY4(rad: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
     result[M4_00] = c;
     result[1] = 0;
     result[2] = -s;
@@ -326,10 +333,10 @@ function rotationY4(rad, result) {
     return result;
 }
 
-function rotationZ4(rad, result) {
-    result = result || new Float32Array(16);
-    var c = Math.cos(rad);
-    var s = Math.sin(rad);
+function rotationZ4(rad: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
     result[M4_00] = c;
     result[1] = s;
     result[2] = 0;
@@ -349,12 +356,12 @@ function rotationZ4(rad, result) {
     return result;
 }
 
-function rotationXY4(radX, radY, result) {
-    result = result || new Float32Array(16);
-    var cx = Math.cos(radX);
-    var sx = Math.sin(radX);
-    var cy = Math.cos(radY);
-    var sy = Math.sin(radY);
+function rotationXY4(radX: number, radY: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
+    const cx = Math.cos(radX);
+    const sx = Math.sin(radX);
+    const cy = Math.cos(radY);
+    const sy = Math.sin(radY);
     result[M4_00] = cy;
     result[1] = sx * sy;
     result[2] = -cx * sy;
@@ -382,8 +389,8 @@ function rotationXY4(radX, radY, result) {
  * @param   {Float32Array} _result [description]
  * @returns {[type]}        [description]
  */
-function rotationYX4(radY, radX, _result) {
-    const result = _result || new Float32Array(16);
+function rotationYX4(radY: number, radX: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
     const
         cy = Math.cos(radY),
         sy = Math.sin(radY),
@@ -416,8 +423,8 @@ function rotationYX4(radY, radX, _result) {
  * @param   {Float32Array} _result [description]
  * @returns {[type]}        [description]
  */
-function rotationXZ4(radX, radZ, _result) {
-    const result = _result || new Float32Array(16);
+function rotationXZ4(radX: number, radZ: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
     const
         cx = Math.cos(radX),
         sx = Math.sin(radX),
@@ -450,8 +457,8 @@ function rotationXZ4(radX, radZ, _result) {
  * @param   {Float32Array} _result [description]
  * @returns {[type]}        [description]
  */
-function rotationZX4(radZ, radX, _result) {
-    const result = _result || new Float32Array(16);
+function rotationZX4(radZ: number, radX: number, output: Float32Array | undefined = undefined) {
+    const result = output || new Float32Array(16);
     const
         cz = Math.cos(radZ),
         sz = Math.sin(radZ),
@@ -476,49 +483,54 @@ function rotationZX4(radZ, radX, _result) {
     return result;
 }
 
-function scaling3(sx, sy) {
+function scaling3(sx: number, sy: number) {
     return mat3(sx, 0, 0, 0, sy, 0, 0, 0, 1);
 }
 
-function scaling4(sx, sy, sz) {
+function scaling4(sx: number, sy: number, sz: number) {
     return mat4(sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1);
 }
 
-function mat2(v00, v10, v01, v11) {
-    return Float32Array([v00, v10, v01, v11]);
+function mat2(v00: number, v10: number, v01: number, v11: number) {
+    return new Float32Array([v00, v10, v01, v11]);
 }
 
-function mat3(v00, v10, v20, v01, v11, v21, v02, v12, v22) {
+function mat3(v00: number, v10: number, v20: number,
+    v01: number, v11: number, v21: number,
+    v02: number, v12: number, v22: number) {
     return new Float32Array([v00, v10, v20, v01, v11, v21, v02, v12, v22]);
 }
 
-function mat4(v00, v10, v20, v30, v01, v11, v21, v31, v02, v12, v22, v32, v03, v13, v23, v33) {
+function mat4(v00: number, v10: number, v20: number, v30: number,
+    v01: number, v11: number, v21: number, v31: number,
+    v02: number, v12: number, v22: number, v32: number,
+    v03: number, v13: number, v23: number, v33: number) {
     return new Float32Array([v00, v10, v20, v30, v01, v11, v21, v31, v02, v12, v22, v32, v03, v13, v23, v33]);
 }
 
-function vec2(a, b) {
+function vec2(a: number, b: number) {
     return new Float32Array([a, b]);
 }
 
-function vec3(a, b, c) {
+function vec3(a: number, b: number, c: number) {
     return new Float32Array([a, b, c]);
 }
 
-function vec4(a, b, c, d) {
+function vec4(a: number, b: number, c: number, d: number) {
     return new Float32Array([a, b, c, d]);
 }
 
-var MUL = {
-    m4m4: function(a, b, result) {
-        result = result || new Float32Array(4);
+const MUL = {
+    m4m4: function(a: Float32Array, b: Float32Array, output: Float32Array | undefined = undefined) {
+        const result = output || new Float32Array(4);
         result[0] = a[0] * b[0] + a[2] * b[1];
         result[1] = a[1] * b[0] + a[3] * b[1];
         result[2] = a[0] * b[2] + a[2] * b[3];
         result[3] = a[1] * b[2] + a[3] * b[3];
         return result;
     },
-    m9m9: function(a, b, result) {
-        result = result || new Float32Array(9);
+    m9m9: function(a: Float32Array, b: Float32Array, output: Float32Array | undefined = undefined) {
+        const result = output || new Float32Array(9);
         result[0] = a[0] * b[0] + a[3] * b[1] + a[6] * b[2];
         result[1] = a[1] * b[0] + a[4] * b[1] + a[7] * b[2];
         result[2] = a[2] * b[0] + a[5] * b[1] + a[8] * b[2];
@@ -530,8 +542,8 @@ var MUL = {
         result[8] = a[2] * b[6] + a[5] * b[7] + a[8] * b[8];
         return result;
     },
-    m16m16: function(a, b, result) {
-        result = result || new Float32Array(16);
+    m16m16: function(a: Float32Array, b: Float32Array, output: Float32Array | undefined = undefined) {
+        const result = output || new Float32Array(16);
         result[M4_00] = a[M4_00] * b[M4_00] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3];
         result[1] = a[1] * b[M4_00] + a[5] * b[1] + a[9] * b[2] + a[13] * b[3];
         result[2] = a[2] * b[M4_00] + a[6] * b[1] + a[10] * b[2] + a[14] * b[3];
@@ -550,8 +562,8 @@ var MUL = {
         result[15] = a[3] * b[12] + a[7] * b[13] + a[11] * b[14] + a[15] * b[15];
         return result;
     },
-    m16m4: function(a, b, result) {
-        result = result || new Float32Array(4);
+    m16m4: function(a: Float32Array, b: Float32Array, output: Float32Array | undefined = undefined) {
+        const result = output || new Float32Array(4);
         result[0] = a[0] * b[0] + a[4] * b[1] + a[8] * b[2] + a[12] * b[3];
         result[1] = a[1] * b[0] + a[5] * b[1] + a[9] * b[2] + a[13] * b[3];
         result[2] = a[2] * b[0] + a[6] * b[1] + a[10] * b[2] + a[14] * b[3];
@@ -567,9 +579,8 @@ var MUL = {
  * @param   {[type]} _result [description]
  * @returns {[type]}         [description]
  */
-function invert4(a, _result) {
-    const
-        out = _result || new Float32Array(4),
+function invert4(a: Float32Array, output: Float32Array | undefined = undefined) {
+    const out = output || new Float32Array(4),
         a00 = a[0],
         a01 = a[1],
         a02 = a[2],
@@ -625,8 +636,8 @@ function invert4(a, _result) {
     return out;
 }
 
-function mul(a, b, result) {
-    var f = MUL['m' + a.length + 'm' + b.length];
+function mul(a: Float32Array, b: Float32Array, result: Float32Array) {
+    const f = MUL[`m${a.length}m${b.length}`];
     if (typeof f !== 'function') {
         throw Error("[webgl.math.mul] I don't know how to multiply 'M" +
             a.length + "' with 'M" + b.length + "'!");
@@ -641,7 +652,7 @@ function mul(a, b, result) {
  *
  * @return {array} Array of `size` doubles.
  */
-function computeBinomialCoeffs(size) {
+function computeBinomialCoeffs(size: number): Float32Array {
     const n = size - 1;
     const coeffs = new Float32Array(size);
     const last = size - 1;

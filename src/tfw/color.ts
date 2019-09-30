@@ -120,11 +120,6 @@ export default class Color {
 
     /**
      * Create a new Color instance base on R,G,B channels.
-     *
-     * @param   {number} red - Value between 0 and 1.
-     * @param   {number} green - Value between 0 and 1.
-     * @param   {number} blue - Value between 0 and 1.
-     * @returns {Color} New instance of Color.
      */
     static newRGB(red: number, green: number, blue: number) {
         const color = new Color();
@@ -137,12 +132,6 @@ export default class Color {
 
     /**
      * Create a new Color instance base on R,G,B,A channels.
-     *
-     * @param   {number} red - Value between 0 and 1.
-     * @param   {number} green - Value between 0 and 1.
-     * @param   {number} blue - Value between 0 and 1.
-     * @param   {number} alpha - Value between 0 and 1.
-     * @returns {Color} New instance of Color.
      */
     static newRGBA(red: number, green: number, blue: number, alpha: number) {
         const color = new Color();
@@ -186,8 +175,7 @@ export default class Color {
     }
 
     /**
-     * @this Color
-     * @returns {string} String value of the color. `#fd45a7`.
+     * Return the string value of the color. For instance: `#fd45a7`.
      */
     stringify() {
         let color = hexa2(this.R * 255) + hexa2(this.G * 255) + hexa2(this.B * 255);
@@ -210,10 +198,10 @@ export default class Color {
     }
 
     /**
-         * @see https://en.wikipedia.org/wiki/HSL_and_HSV#Converting_to_RGB
-         * @this Color
-         * @returns {undefined}
-         */
+     * Transform HSL coords into RGB coords.
+     *
+     * (see https://en.wikipedia.org/wiki/HSL_and_HSV#Converting_to_RGB)
+     */
     hsl2rgb() {
         const
             H = 6 * this.H,
@@ -323,8 +311,7 @@ export default class Color {
     }
 
     /**
-     * @param   {string} text - `rgb(200, 140, 50)`
-     * @returns {boolean} `true` if `text` is a valid `rgb()` syntax.
+     * Parse text as `rgb(200, 140, 50)`.
      */
     private parseRGB(text: string) {
         const m = RX_RGB.exec(text);
@@ -337,8 +324,7 @@ export default class Color {
     }
 
     /**
-     * @param   {string} text - `rgba(200, 140, 50, 0.5)`
-     * @returns {boolean} `true` if `text` is a valid `rgba()` syntax.
+     * Parse text as `rgb(200, 140, 50, 0.5)`.
      */
     private parseRGBA(text: string) {
         const m = RX_RGBA.exec(text);
@@ -351,8 +337,7 @@ export default class Color {
     }
 
     /**
-     * @param   {string} text - `hsl(200, 140, 50)`
-     * @returns {boolean} `true` if `text` is a valid `hsl()` syntax.
+     * Parse text as `hsl(200, 140, 50)`.
      */
     private parseHSL(text: string) {
         const m = RX_HSL.exec(text);

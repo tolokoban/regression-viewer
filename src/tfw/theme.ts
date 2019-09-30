@@ -48,7 +48,8 @@ interface IStyle {
     fgSL?: string;
     black?: string;
     white?: string;
-    [key: string]: string | undefined;
+    $isDark?: boolean,
+    [key: string]: string | boolean | undefined;
 };
 
 interface ITheme {
@@ -232,8 +233,8 @@ function codeElevation(themeName: string, style: IStyle) {
     COLOR.parse(style.bg2);
     const luminance = COLOR.luminance();
     var elevationColor = luminance < .6
-        ? addAlpha(style.white, 4)
-        : addAlpha(style.black, 6);
+        ? addAlpha(style.white || "#fff", "4")
+        : addAlpha(style.black || "#000", "6");
     var codeCSS = '';
     const elevationKeys = Object.keys(ELEVATIONS);
     elevationKeys.forEach(function(elevationKey) {
@@ -424,7 +425,8 @@ function setFontSize(size: "small" | "medium" | "large") {
     html.classList.add(`thm-font-size-${size}`);
 }
 
-function normalize(hexa: string): string {
+function normalize(hexa: string|undefined): string {
+    if (typeof hexa !== 'string') return "#000000"
     const color = new Color(hexa);
     return color.stringify();
 }
