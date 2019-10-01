@@ -124,7 +124,9 @@ class Gesture {
         ptr.moves.init(x, y);
 
         if (this.handlers.down) {
-            this.handlers.down(Object.assign(event, { x, y, target: element }))
+            this.handlers.down({
+                ...event,
+                x, y, target: element })
         }
     }
 

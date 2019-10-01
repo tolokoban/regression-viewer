@@ -1,6 +1,7 @@
 const BPE = (new Float32Array()).BYTES_PER_ELEMENT;
 
-interface IShaders { vert: string, frag: string }
+export interface IShaders { vert: string, frag: string }
+
 interface IAttrib extends WebGLActiveInfo {
     typeName: string,
     length: number,
@@ -125,24 +126,26 @@ export default class Program {
 
     bindAttribs(buffer: WebGLBuffer, ...names: string[]) {
         const that = this
-        const { gl } = this;
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        let totalSize = 0;
-        names.forEach(function(name) {
-            var attrib = that.attribs[name];
+        const { gl } = this
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+
+        let totalSize = 0
+        for (const name of names) {
+            const attrib = that.attribs[name]
             if (!attrib) {
                 throw Error("Cannot find attribute \"" + name + "\"!\n" +
                     "It may be not active because unused in the shader.\n" +
                     "Available attributes are: " + Object.keys(that.attribs).map(function(name) {
                         return '"' + name + '"';
-                    }).join(", "));
+                    }).join(", ") + ` (${that.attribs.length})`)
             }
-            totalSize += (attrib.size * attrib.length) * BPE;
-        });
-        var offset = 0;
-        names.forEach(function(name) {
-            var attrib = that.attribs[name];
-            gl.enableVertexAttribArray(attrib.location);
+            totalSize += (attrib.size * attrib.length) * BPE
+        }
+
+        let offset = 0;
+        for (const name of names) {
+            const attrib = that.attribs[name];
+            gl.enableVertexAttribArray(attrib.location)
             gl.vertexAttribPointer(
                 attrib.location,
                 attrib.size * attrib.length,
@@ -150,9 +153,9 @@ export default class Program {
                 false, // No normalisation.
                 totalSize,
                 offset
-            );
-            offset += (attrib.size * attrib.length) * BPE;
-        });
+            )
+            offset += (attrib.size * attrib.length) * BPE
+        }
     }
 
     private createUniforms(): IUniformsDic {
@@ -356,7 +359,7 @@ function getVertexShader(gl: WebGLRenderingContext, code: string) {
 
 function getTypesNamesLookup(gl: WebGLRenderingContext): {} {
     var lookup: {[key: number]: string} = {}
-    
+
     for (let k in gl) {
         if (k !== k.toUpperCase()) continue
         const v = (gl as {[key: string]: any})[k]

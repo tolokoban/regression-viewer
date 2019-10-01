@@ -2,8 +2,8 @@ export interface IBasicEvent {
     // Coords relative to the element.
     x: number;
     y: number;
-    startX?: number;
-    startY?: number;
+    startX: number;
+    startY: number;
     index: number;
     event: MouseEvent | TouchEvent,
     buttons: number;

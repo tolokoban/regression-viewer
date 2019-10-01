@@ -47,11 +47,11 @@ export default class DataManager {
             const x1 = p[1]
             const x2 = p[2]
             that.yMin = Math.min(that.yMin, y)
-            that.yMax = Math.min(that.yMax, y)
+            that.yMax = Math.max(that.yMax, y)
             that.x1Min = Math.min(that.x1Min, x1)
-            that.x1Max = Math.min(that.x1Max, x1)
+            that.x1Max = Math.max(that.x1Max, x1)
             that.x2Min = Math.min(that.x2Min, x2)
-            that.x2Max = Math.min(that.x2Max, x2)
+            that.x2Max = Math.max(that.x2Max, x2)
             return { x1, x2, y }
         })
         this.planes = Data.planes.map((p: [number, number, number]) => ({

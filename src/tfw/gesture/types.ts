@@ -6,6 +6,8 @@ export interface IEvent extends IBasicEvent {
     target: HTMLElement;
     x: number;
     y: number;
+    startX: number;
+    startY: number;
 }
 
 export interface IWheelEvent extends IEvent {

@@ -71,17 +71,18 @@ function normalize(arr: Iterable<number>) {
 /**
  * Create the matrix of a camera pointing on (targetX,targetY,targetZ) which is
  * the center of a sphere of radius `dis`. The camera position is defined by its
- * latitude and longitude on this sphere.
+ * latitude and longitude (expressed in radians) on this sphere.
  */
 function cameraPolar4(targetX: number, targetY: number, targetZ: number,
     dis: number, lat: number, lng: number,
-    output: Float32Array | undefined = undefined): Float32Array {
+    output: Float32Array | undefined = undefined): Float32Array
+    {
     const result = output || new Float32Array(16);
     const cosLat = Math.cos(lat);
     const sinLat = Math.sin(lat);
     const cosLng = -Math.cos(lng + Math.PI * .5);
     const sinLng = -Math.sin(lng + Math.PI * .5);
-    // Vecteur Z de la caméra.
+    // Z vector of the camera.
     const Zx = cosLng * cosLat;
     const Zy = sinLng * cosLat;
     const Zz = sinLat; // V2/2
@@ -136,8 +137,8 @@ function cameraPolar4(targetX: number, targetY: number, targetZ: number,
  * - param far: Clip every Z greater than `far`.
  */
 function perspective4(fieldAngle: number, aspect: number,
-                      near: number, far: number,
-                      output: Float32Array | undefined = undefined) {
+    near: number, far: number,
+    output: Float32Array | undefined = undefined) {
     const result = output || new Float32Array(16);
     const f = Math.tan(0.5 * (Math.PI - fieldAngle));
     const rangeInv = 1.0 / (near - far);
@@ -636,7 +637,7 @@ function invert4(a: Float32Array, output: Float32Array | undefined = undefined) 
     return out;
 }
 
-function mul(a: Float32Array, b: Float32Array, result: Float32Array) {
+function mul(a: Float32Array, b: Float32Array, result: Float32Array|undefined = undefined) {
     const f = MUL[`m${a.length}m${b.length}`];
     if (typeof f !== 'function') {
         throw Error("[webgl.math.mul] I don't know how to multiply 'M" +
