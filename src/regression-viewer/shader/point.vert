@@ -7,5 +7,5 @@ void main() {
   // Une simple multiplication permet d'appliquer
   // la perspective.
   gl_Position = uniTransfo * vec4( attPoint, 1.0 );
-  gl_PointSize = uniPointSize / (1.0 + abs(gl_Position.z));
+  gl_PointSize = 16.0;  // uniPointSize / (1.0 + abs(gl_Position.z));
 }

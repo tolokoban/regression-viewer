@@ -34,18 +34,14 @@ export default class App extends React.Component<{}, {}> {
 
     constructor(props: {}) {
         super(props)
-        console.log("AAA")
         this.data = new Data()
         this.perspective = new Float32Array(16)
         this.transfo = new Float32Array(16)
         this.camera = new Float32Array(16)
+        this.distance = this.data.getRadius() * 2
     }
 
     async componentDidMount() {
-        console.log(">>> componentDidMount")
-        console.info("VertPoint=", VertPoint);
-        console.info("FragPoint=", FragPoint);
-
         try {
             const canvas = this.refCanvas.current
             if (!canvas) throw Error("No canvas!")
@@ -62,9 +58,6 @@ export default class App extends React.Component<{}, {}> {
         catch (ex) {
             console.error("Unable to init WebGL!\n", ex)
         }
-        finally {
-            console.log("<<< componentDidMount")
-        }
     }
 
     private async loadShaders() {
@@ -77,14 +70,12 @@ export default class App extends React.Component<{}, {}> {
     }
 
     private paint = (time: number) => {
-        requestAnimationFrame(this.paint)
-
         const { gl, prg } = this
         if (!gl || !prg) return
 
         Resize(gl)
         gl.enable( gl.DEPTH_TEST );
-        gl.clearColor( 1, 1, 1, 1 );
+        gl.clearColor( 0.1, 0.1, 0.1, 1 );
         gl.clearDepth( 1 );
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
         gl.depthFunc( gl.LESS );
@@ -114,6 +105,8 @@ export default class App extends React.Component<{}, {}> {
 
         gl.bindBuffer( gl.ARRAY_BUFFER, this.buffPoint );
         gl.drawArrays( gl.POINTS, 0, this.data.pointsCount );
+
+        requestAnimationFrame(this.paint)
     }
 
     private initWebGL(shaders: IShaders) {
@@ -163,7 +156,7 @@ export default class App extends React.Component<{}, {}> {
     }
 
     render() {
-        return (<div className="regressionViewer-App">
+        return (<div className="regressionViewer-App thm-bg0">
             <canvas ref={this.refCanvas}></canvas>
         </div>)
     }

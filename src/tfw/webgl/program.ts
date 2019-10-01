@@ -89,6 +89,12 @@ export default class Program {
             item.length = this.getSize(gl, item);
             item.location = gl.getAttribLocation(program, item.name);
             attribs[item.name] = item;
+            Object.defineProperty(this, '$' + item.name, {
+                value: item.location,
+                writable: false,
+                enumerable: true,
+                configurable: false
+            });
         }
         return attribs
     }
@@ -349,12 +355,14 @@ function getVertexShader(gl: WebGLRenderingContext, code: string) {
 }
 
 function getTypesNamesLookup(gl: WebGLRenderingContext): {} {
-    var lookup: {[key: number]: string} = {};
-    for (const k of Object.keys(gl)) {
-        const v = (gl as {[key: string]: any})[k];
+    var lookup: {[key: number]: string} = {}
+    
+    for (let k in gl) {
+        if (k !== k.toUpperCase()) continue
+        const v = (gl as {[key: string]: any})[k]
         if (typeof v === 'number') {
-            lookup[v] = k;
+            lookup[v] = k
         }
     }
-    return lookup;
+    return lookup
 }
