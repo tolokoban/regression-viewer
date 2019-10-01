@@ -104,14 +104,13 @@ export default class App extends React.Component<{}, {}> {
 
         prg.point.use()
         prg.point.$uniTransfo = this.transfo
-        prg.point.$pointSize = 100
+        prg.point.$uniPointSize = 100
         prg.point.$uniColor = new Float32Array([0.2, 0.7, 1.0])
 
         const block = 3 * BPE;
 
-        const attPoint = gl.getAttribLocation( prg.point, "attPoint" );
-        gl.enableVertexAttribArray( attPoint );
-        gl.vertexAttribPointer( attPoint, 3, gl.FLOAT, false, block, 0 * BPE );
+        gl.enableVertexAttribArray( prg.point.$attPoint );
+        gl.vertexAttribPointer( prg.point.$attPoint, 3, gl.FLOAT, false, block, 0 * BPE );
 
         gl.bindBuffer( gl.ARRAY_BUFFER, this.buffPoint );
         gl.drawArrays( gl.POINTS, 0, this.data.pointsCount );
