@@ -82,7 +82,8 @@ class AxisPainter {
         ctx1.stroke()
         ctx1.font = "80px sans-serif"
         ctx1.fillStyle = "#224"
-        ctx1.fillText("Y", 40, 120);
+        ctx1.fillText("Senso appartenenza", 40, 120);  // Y
+        ctx1.fillText("alla scuola", 60, 200);  // Y
         const tex1 = Texture.createFromCanvas(gl, canvas1)
 
         const canvas2 = Texture.createCanvas(1024, 1024)
@@ -104,7 +105,7 @@ class AxisPainter {
         ctx2.stroke()
         ctx2.font = "80px sans-serif"
         ctx2.fillStyle = "#226"
-        ctx2.fillText("X1", 40, 120);
+        ctx2.fillText("Autoefficacia scolastica", 40, 120);  // X1
         const tex2 = Texture.createFromCanvas(gl, canvas2)
 
         const canvas3 = Texture.createCanvas(1024, 1024)
@@ -126,7 +127,7 @@ class AxisPainter {
         ctx3.stroke()
         ctx3.font = "80px sans-serif"
         ctx3.fillStyle = "#226"
-        ctx3.fillText("X2", 40, 120);
+        ctx3.fillText("Appartenenza al gruppo", 40, 120);  // X2
         const tex3 = Texture.createFromCanvas(gl, canvas3)
 
         return {
