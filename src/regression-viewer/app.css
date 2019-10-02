@@ -1,5 +1,13 @@
-div.regressionViewer-App,
-div.regressionViewer-App > canvas {
+body {
+    font-family: josefin-sans, sans-serif;
+}
+
+div.regressionViewer-App {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+
     position: absolute;
     left: 0;
     top: 0;
@@ -10,4 +18,15 @@ div.regressionViewer-App > canvas {
     width: 100%;
     height: 100%;
     overflow: hidden;
+}
+
+div.regressionViewer-App > nav {
+    flex: 0 0 auto;
+    overflow: auto;
+    padding: .5rem;
+    z-index: 1;
+}
+
+div.regressionViewer-App > canvas {
+    flex: 1 1 auto;
 }

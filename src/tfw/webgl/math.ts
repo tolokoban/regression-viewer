@@ -1,4 +1,6 @@
 export const M4 = {
+    cameraPolar: cameraPolar4,
+    copy: copy,
     identity: identity4,
     matrix: mat4,
     vector: vec4,
@@ -12,9 +14,7 @@ export const M4 = {
     rotationXZ: rotationXZ4,
     rotationZX: rotationZX4,
     scaling: scaling4,
-    copy: copy,
     normalize: normalize,
-    cameraPolar: cameraPolar4,
     perspective: perspective4,
     mul: mul
 }
@@ -26,8 +26,14 @@ export const M3 = {
     rotation: rotation3,
     scaling: scaling3
 }
+export const V3 = {
+    cross: cross3,
+    dot: dot3,
+    length: length3,
+    normalize: normalize3
+}
 
-export default { M3, M4, computeBinomialCoeffs }
+export default { M3, M4, V3, computeBinomialCoeffs }
 
 const
     M4_00 = 0,
@@ -673,4 +679,33 @@ function computeBinomialCoeffs(size: number): Float32Array {
         coeffs[last - p] = value;
     }
     return coeffs;
+}
+
+
+
+function cross3(u: Float32Array, v: Float32Array, output: Float32Array|undefined = undefined): Float32Array {
+    const result = output || new Float32Array(3)
+    result[0] = u[1] * v[2] - u[2] * v[1]
+    result[1] = u[2] * v[0] - u[0] * v[2]
+    result[2] = u[0] * v[1] - u[1] * v[0]
+    return result
+}
+
+function length3(u: Float32Array): number {
+    return Math.sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
+}
+
+function dot3(u: Float32Array, v: Float32Array): number {
+    return u[0]*v[0] + u[1]*v[1] + u[2]*v[2]
+}
+
+function normalize3(u: Float32Array, output: Float32Array|undefined = undefined): Float32Array {
+    const result = output || new Float32Array(3)
+    const len = length3(u)
+    if (len > 0) {
+        result[0] = u[0] / len
+        result[1] = u[1] / len
+        result[2] = u[2] / len
+    }
+    return result
 }

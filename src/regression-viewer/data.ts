@@ -15,17 +15,21 @@ class Plane {
         this.a1 = coeffs[1]
         this.a2 = coeffs[2]
     }
+
+    getY(x1: number, x2: number) {
+        return this.c + x1 * this.a1 + x2 * this.a2
+    }
 }
 
 export default class DataManager {
     private readonly points: IPoint3D[]
     private readonly planes: Plane[]
-    private x1Min: number = 0
-    private x1Max: number = 0
-    private x2Min: number = 0
-    private x2Max: number = 0
-    private yMin: number = 0
-    private yMax: number = 0
+    x1Min: number = 0
+    x1Max: number = 0
+    x2Min: number = 0
+    x2Max: number = 0
+    yMin: number = 0
+    yMax: number = 0
 
     constructor() {
         console.info("Data=", Data);
@@ -54,11 +58,7 @@ export default class DataManager {
             that.x2Max = Math.max(that.x2Max, x2)
             return { x1, x2, y }
         })
-        this.planes = Data.planes.map((p: [number, number, number]) => ({
-            c: p[0],
-            a1: p[1],
-            a2: p[2]
-        }))
+        this.planes = Data.planes.map((p: [number, number, number]) => new Plane(p))
     }
 
     getCenter(): IPoint3D {

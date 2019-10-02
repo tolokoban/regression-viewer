@@ -37,6 +37,7 @@
   "devDependencies": {
     "@csstools/normalize.css": "^10.1.0",
     "gh-pages": "^2.1.1",
+    "jest-canvas-mock": "^2.1.1",
     "path-exists": "^4.0.0",
     "react-app-rewire-yaml": "^1.1.0",
     "react-app-rewired": "^2.1.3",

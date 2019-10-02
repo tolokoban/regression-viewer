@@ -106,7 +106,7 @@ export default class Color {
         const color1 = colors[firstColorIndex]
         if (firstColorIndex === spacesCount) return color1
         const color2 = colors[firstColorIndex + 1]
-        const translatedAlpha = firstColorIndex + alpha / spacesCount
+        const translatedAlpha = spacesCount * alpha - firstColorIndex
         return Color.mix(color1, color2, translatedAlpha)
     }
 
